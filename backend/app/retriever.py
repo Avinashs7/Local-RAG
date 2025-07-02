@@ -19,10 +19,16 @@ class Retriever:
             self.index = faiss.IndexFlatL2(768)  
 
     def save_index(self):
-        faiss.write_index(self.index, Config.INDEX_PATH)
-        with open(Config.INDEX_PATH.replace(".faiss", ".meta"), "w", encoding="utf-8") as f:
-            for doc in self.documents:
-                f.write(f"{doc}\n")
+        abs_path = os.path.abspath(Config.INDEX_PATH)
+        index_dir = os.path.dirname(abs_path)
+
+        # Ensure the parent directory exists
+        if not os.path.exists(index_dir):
+            os.makedirs(index_dir, exist_ok=True)
+            print(f"[Retriever] Created directory: {index_dir}")
+
+        print(f"[Retriever] Saving Faiss index at: {abs_path}")
+        faiss.write_index(self.index, abs_path)
 
     def add_documents(self, embeddings: np.ndarray, texts: list[str]):
         self.index.add(embeddings)

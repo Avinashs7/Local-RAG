@@ -1,8 +1,11 @@
+from PyPDF2 import PdfReader
 import os
 
-def load_text_documents(doc_dir):
-    texts = []
-    for filename in os.listdir(doc_dir):
-        with open(os.path.join(doc_dir, filename), "r", encoding="utf-8") as f:
-            texts.append(f.read())
-    return texts
+def extract_text_from_pdf(pdf_path,chunk_size=500) -> str:
+    reader=PdfReader(pdf_path)
+    full_text=""
+    for page in reader.pages:
+        full_text+=page.extract_text() or ""
+    return [full_text[i:i+chunk_size] for i in range(0,len(full_text),chunk_size)]
+        
+    
